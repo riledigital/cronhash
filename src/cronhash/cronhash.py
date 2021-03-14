@@ -13,6 +13,7 @@ def initialize_database(file_db):
 				(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		url TEXT NOT NULL,
+		previous_update TEXT,
 		last_updated TEXT,
 		hash TEXT,
 		content BLOB
