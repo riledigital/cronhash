@@ -1,7 +1,7 @@
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos,vscode,windows,linux,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos,vscode,windows,linux,git
-
+*.db
 ### Git ###
 # Created by git for backups. To disable backups in Git:
 # $ git config --global mergetool.keepBackup false

@@ -5,8 +5,8 @@ import hashlib
 from datetime.datetime import datetime
 import pickle
 
-def initialize_database(file_db):
-	con = sqlite3.connect('data.db')
+def initialize_database(file_db = 'data.db'):
+	con = sqlite3.connect(file_db)
 	cur = con.cursor()
 	# Create table if not exists
 	cur.execute('''CREATE TABLE IF NOT EXISTS sites
@@ -14,8 +14,9 @@ def initialize_database(file_db):
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		url TEXT NOT NULL,
 		previous_update TEXT,
-		last_updated TEXT,
-		hash TEXT,
+		previous_hash TEXT,
+		newest_updated TEXT,
+		newest_hash TEXT,
 		content BLOB
 	)
 	''')
@@ -31,8 +32,9 @@ def fetch_url_data(url):
 	# last_updated = datetime.now().fromisoformat()
 
 	content = pickle.dumps(response)
-	return (None, url, last_updated, hash_str, content)
+	return (None, url, None, None, last_updated, hash_str, content)
 
 if __init__ == '__main__':
+	initialize_database('data.db')
 	tup = fetch_url_data('http://example.org')
 	print(tup)
