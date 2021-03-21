@@ -35,7 +35,18 @@ def fetch_url_data(url):
 	content = pickle.dumps(response)
 	return (str(uuid4()), url, None, None, last_updated, hash_str, content)
 
-def insert_record(con, cur, record):
+def site_record_exists(con, cur, url):
+	cur.execute("SELECT id,url from sites WHERE url=?", (url,))
+	existing = cur.fetchone()
+	return existing is not None
+
+def add_new_site(con, cur, url):
+	if site_record_exists(con, cur, url):
+		print(f"Skipping insert, site already exists: {url}")
+	else:
+		insert_update_record(con, cur, (str(uuid4()), url, None, None, None, None, None))
+
+def insert_update_record(con, cur, record):
 	# Lookup existing record
 	cur.execute("SELECT id,url from sites WHERE url=?", (record[1],))
 	existing = cur.fetchone()
@@ -59,10 +70,30 @@ def list_changed_records(con, cur):
 	records = cur.execute("SELECT * from sites WHERE previous_hash != newest_hash").fetchall()
 	return records
 
+def fetch_update_url(con, cur, url):
+	"""Composite operation
+
+	Args:
+		con ([type]): [description]
+		cur ([type]): [description]
+		url ([type]): [description]
+	"""
+	tup = fetch_url_data('http://example.org')
+	insert_update_record(con, cur, tup)
+	print(list_changed_records(con, cur))
+
+def get_all_records(con, cur):
+	cur.execute("""SELECT url from sites""")
+	records = cur.fetchall()
+	return records
+
+def scan_all(con, cur, records):
+	for site in records:
+		new_record = fetch_url_data(site[0])
+		insert_update_record(con, cur, new_record)
 
 if __name__ == '__main__':
 	con, cur = initialize_database('data.db')
-	tup = fetch_url_data('http://example.org')
-	print(tup)
-	insert_record(con, cur, tup)
-	print(list_changed_records(con, cur))
+	add_new_site(con, cur, "https://google.com")
+	# fetch_update_url(con, cur, 'http://example.org')
+	scan_all(con, cur, get_all_records(con, cur))
